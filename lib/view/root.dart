@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lion12/view/mypage.dart';
 import 'package:lion12/view/walk.dart';
 import 'package:lion12/view/community.dart';
-import 'default_layout.dart';
-import 'diet.dart';
-import 'home.dart';
+import 'package:lion12/view/diet.dart';
+import 'package:lion12/view/home.dart';
+import 'package:lion12/view/topbar.dart';
 
 class RootTab extends StatefulWidget {
   static String get routeName => 'home';
@@ -15,42 +15,37 @@ class RootTab extends StatefulWidget {
   State<RootTab> createState() => _RootTabState();
 }
 
-class _RootTabState extends State<RootTab>
-    with SingleTickerProviderStateMixin {
+class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
   late TabController controller;
-
   int index = 0;
 
   @override
   void initState() {
     super.initState();
-
     controller = TabController(length: 5, vsync: this);
-
     controller.addListener(tabListener);
   }
 
   @override
   void dispose() {
     controller.removeListener(tabListener);
-
+    controller.dispose(); // 컨트롤러를 제대로 dispose
     super.dispose();
   }
 
-  void tabListener(){
-    setState((){
+  void tabListener() {
+    setState(() {
       index = controller.index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultLayout(
-      title: '코팩 딜리버리',
-      child: TabBarView(
-        physics: NeverScrollableScrollPhysics(),
+    return Scaffold(
+      appBar: const Topbar(),
+      body: TabBarView(
         controller: controller,
-        children: [
+        children: const [
           Home(),
           Walk(),
           Diet(),
@@ -59,7 +54,7 @@ class _RootTabState extends State<RootTab>
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.white,
+        selectedItemColor: Colors.grey,
         unselectedItemColor: Colors.black,
         selectedFontSize: 10,
         unselectedFontSize: 10,
@@ -68,22 +63,26 @@ class _RootTabState extends State<RootTab>
           controller.animateTo(index);
         },
         currentIndex: index,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             label: '홈',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fastfood_outlined),
-            label: '음식',
+            icon: Icon(Icons.assist_walker),
+            label: '산책',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: '주문',
+            icon: Icon(Icons.fastfood_outlined),
+            label: '식단',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.group),
+            label: '커뮤니티',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outlined),
-            label: '프로필',
+            label: '마이',
           ),
         ],
       ),
