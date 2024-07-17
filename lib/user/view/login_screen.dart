@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lion12/view/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:lion12/component/text_field.dart';
@@ -9,7 +10,6 @@ class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
-ddd
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -24,21 +24,25 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
+    
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-
-    final response = await http.get(
-      Uri.parse('http://43.201.112.183/swagger-ui/index.html?memberId=$email&password=$password'),
+    final response = await http.post(
+      Uri.parse('http://43.201.112.183/api/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
       },
+      body:jsonEncode(<String, String>{
+        'memberId': email,
+        'password': password,
+      })
     );
 
     if (response.statusCode == 200) {
       print('Login successful');
+      print('Response body: ${response.body}');
+
       // TODO: 로그인 성공 후 페이지 이동 또는 토큰 저장 등의 작업 수행
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
     } else {
       print('Login failed: ${response.statusCode}');
       // TODO: 사용자에게 오류 메시지 표시

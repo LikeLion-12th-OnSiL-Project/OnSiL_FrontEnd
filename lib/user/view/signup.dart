@@ -29,8 +29,9 @@ class SignupScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        print('Login successful');
+        print('Response body: ${response.body}');
       } else {
         print('Failed to register. Error: ${response.statusCode}');
       }
