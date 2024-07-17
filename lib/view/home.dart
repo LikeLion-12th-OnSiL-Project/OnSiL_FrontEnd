@@ -25,7 +25,6 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
-            // 아래부터는 스크롤 가능한 리스트 아이템들
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),

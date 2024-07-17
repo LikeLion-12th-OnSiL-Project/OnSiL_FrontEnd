@@ -29,7 +29,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     controller.removeListener(tabListener);
-    controller.dispose(); // 컨트롤러를 제대로 dispose
+    controller.dispose();
     super.dispose();
   }
 
