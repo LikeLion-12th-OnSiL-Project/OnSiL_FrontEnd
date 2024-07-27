@@ -3,6 +3,11 @@
         android:label="lion12"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="c6f54e25201fd1dbc13efcf95c156b6f" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -19,7 +24,8 @@
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
-              />
+
+                />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
