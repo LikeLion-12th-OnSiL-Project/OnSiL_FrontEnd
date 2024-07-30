@@ -1,12 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+
+
+
     <application
         android:label="lion12"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <meta-data
-            android:name="com.kakao.sdk.AppKey"
-            android:value="c6f54e25201fd1dbc13efcf95c156b6f" />
 
         <activity
             android:name=".MainActivity"
@@ -36,6 +43,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!--        구글api-->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDV8lz2OkQK8zsSo3Y8S78SgNfJR9HJTMg"/>
+
+
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
