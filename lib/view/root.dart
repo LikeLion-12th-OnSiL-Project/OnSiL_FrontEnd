@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:lion12/view/mypage.dart';
+import 'package:provider/provider.dart';
+import 'package:lion12/view/home.dart';
 import 'package:lion12/view/walk.dart';
 import 'package:lion12/view/community.dart';
 import 'package:lion12/view/diet.dart';
-import 'package:lion12/view/home.dart';
+import 'package:lion12/view/mypage.dart';
 import 'package:lion12/view/topbar.dart';
+import 'package:lion12/provider/nick.dart';
+
 
 class RootTab extends StatefulWidget {
   static String get routeName => 'home';
@@ -18,18 +21,24 @@ class RootTab extends StatefulWidget {
 class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
   late TabController controller;
   int index = 0;
+  final TextEditingController _nicknameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     controller = TabController(length: 5, vsync: this);
     controller.addListener(tabListener);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showNicknameDialog();
+    });
   }
 
   @override
   void dispose() {
     controller.removeListener(tabListener);
     controller.dispose();
+    _nicknameController.dispose();
     super.dispose();
   }
 
@@ -37,6 +46,77 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
     setState(() {
       index = controller.index;
     });
+  }
+
+  void _showNicknameDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('닉네임 입력'),
+          content: TextField(
+            controller: _nicknameController,
+            decoration: InputDecoration(hintText: '닉네임을 입력하세요'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (_nicknameController.text.isNotEmpty) {
+                  Provider.of<NicknameProvider>(context, listen: false)
+                      .setNickname(_nicknameController.text);
+                  Navigator.of(context).pop();
+                  _showNicknameConfirmation(_nicknameController.text);
+                } else {
+                  _showErrorDialog();
+                }
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showNicknameConfirmation(String nickname) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('닉네임 설정 완료'),
+          content: Text('설정된 닉네임: $nickname'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('오류'),
+          content: Text('닉네임을 입력해주세요.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -47,9 +127,9 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
         controller: controller,
         children: const [
           Home(),
-          Walk(),
+          MapScreen(),
           Diet(),
-          Community(),
+          PostPage(),
           Mypage(),
         ],
       ),
