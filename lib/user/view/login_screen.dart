@@ -24,17 +24,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
-    
+
 
     final response = await http.post(
-      Uri.parse('http://43.201.112.183/api/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body:jsonEncode(<String, String>{
-        'memberId': email,
-        'password': password,
-      })
+        Uri.parse('http://43.201.112.183/api/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body:jsonEncode(<String, String>{
+          'memberId': email,
+          'password': password,
+        })
     );
 
     if (response.statusCode == 200) {
