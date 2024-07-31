@@ -14,7 +14,20 @@ class Topbar extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('로고', style: TextStyle(color: fontColor, fontSize: 20)),
+            Row(
+              children: [
+                Image.asset(
+                  'assets/img/Vector.png', // Vector 이미지 경로 설정
+                  height: 30.0,
+                  width: 30.0,
+                ),
+                Image.asset(
+                  'assets/img/Union.png', // Union 이미지 경로 설정
+                  height: 30.0,
+                  width: 30.0,
+                ),
+              ],
+            ),
             IconButton(
               onPressed: () {},
               icon: Icon(Icons.notifications_none, color: fontColor),
