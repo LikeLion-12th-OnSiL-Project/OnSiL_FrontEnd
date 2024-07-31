@@ -8,7 +8,6 @@ import 'package:lion12/view/mypage.dart';
 import 'package:lion12/view/topbar.dart';
 import 'package:lion12/provider/nick.dart';
 
-
 class RootTab extends StatefulWidget {
   static String get routeName => 'home';
 
@@ -28,10 +27,6 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
     super.initState();
     controller = TabController(length: 5, vsync: this);
     controller.addListener(tabListener);
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _showNicknameDialog();
-    // });
   }
 
   @override
@@ -48,80 +43,10 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
     });
   }
 
-  // void _showNicknameDialog() {
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('닉네임 입력'),
-  //         content: TextField(
-  //           controller: _nicknameController,
-  //           decoration: InputDecoration(hintText: '닉네임을 입력하세요'),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               if (_nicknameController.text.isNotEmpty) {
-  //                 Provider.of<NicknameProvider>(context, listen: false)
-  //                     .setNickname(_nicknameController.text);
-  //                 Navigator.of(context).pop();
-  //                 _showNicknameConfirmation(_nicknameController.text);
-  //               } else {
-  //                 _showErrorDialog();
-  //               }
-  //             },
-  //             child: Text('확인'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-  //
-  // void _showNicknameConfirmation(String nickname) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('닉네임 설정 완료'),
-  //         content: Text('설정된 닉네임: $nickname'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('확인'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-  //
-  // void _showErrorDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('오류'),
-  //         content: Text('닉네임을 입력해주세요.'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('확인'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // 배경색을 하얀색으로 설정
       appBar: const Topbar(),
       body: TabBarView(
         controller: controller,
@@ -134,6 +59,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white, // BottomNavigationBar 배경색 설정
         selectedItemColor: Colors.grey,
         unselectedItemColor: Colors.black,
         selectedFontSize: 10,
@@ -143,25 +69,25 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
           controller.animateTo(index);
         },
         currentIndex: index,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
+            icon: Image.asset(index == 0 ? 'assets/img/home2.png' : 'assets/img/home.png'),
             label: '홈',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assist_walker),
+            icon: Image.asset(index == 1 ? 'assets/img/sss2.png' : 'assets/img/sss.png'),
             label: '산책',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fastfood_outlined),
+            icon: Image.asset(index == 2 ? 'assets/img/food2.png' : 'assets/img/food.png'),
             label: '식단',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Image.asset(index == 3 ? 'assets/img/commu2.png' : 'assets/img/commu.png'),
             label: '커뮤니티',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outlined),
+            icon: Image.asset(index == 4 ? 'assets/img/my2.png' : 'assets/img/my.png'),
             label: '마이',
           ),
         ],
@@ -169,3 +95,4 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
     );
   }
 }
+

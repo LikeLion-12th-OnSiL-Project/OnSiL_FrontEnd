@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lion12/provider/nick.dart';
 import 'package:lion12/user/view/login_screen.dart';
+import 'package:lion12/view/community.dart';
 import 'package:lion12/view/root.dart';
 import 'package:lion12/view/map.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(),
+      home: RootTab(),
     );
   }
 }

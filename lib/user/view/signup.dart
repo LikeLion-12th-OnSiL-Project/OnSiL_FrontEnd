@@ -41,7 +41,6 @@ class _SignupScreenState extends State<SignupScreen> {
     String nickname = _nicknameController.text;
     String email = _emailController.text;
 
-
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
       request.fields['memberId'] = memberId;
@@ -82,8 +81,9 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign Up'),
+        title: Text('회원 가입'),
       ),
+      backgroundColor: Colors.white, // Set background color to white
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -103,14 +103,30 @@ class _SignupScreenState extends State<SignupScreen> {
               TextField(
                 controller: _memberIdController,
                 decoration: InputDecoration(
-                  hintText: 'Member ID',
+                  hintText: '아이디',      hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
-                  hintText: 'Password',
+                  hintText: '비밀번호',      hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
                 obscureText: true,
               ),
@@ -118,29 +134,57 @@ class _SignupScreenState extends State<SignupScreen> {
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  hintText: 'Name',
+                  hintText: '이름',      hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _nicknameController,
                 decoration: InputDecoration(
-                  hintText: 'Nickname',
+                  hintText: '닉네임',      hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
-              TextFormField(
+              TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  hintText: 'email',
+                  hintText: '이메일',      hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+
                 ),
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   _register(context);
                 },
-                child: Text('Sign Up'),
+                child:  Image.asset(
+                  'assets/img/login_button.png',
+                  width: 250,
+                ),
               ),
             ],
           ),

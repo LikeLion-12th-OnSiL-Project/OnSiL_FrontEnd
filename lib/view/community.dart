@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lion12/view/post.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -96,97 +97,108 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 게시물 작성 페이지로 이동하는 로직 추가
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WritePostPage()));
         },
-        child: Icon(Icons.add),
+        child: Image.asset(
+            'assets/img/add.png'
+        ),
       ),
     );
   }
 
   Widget buildPostList(List<Map<String, dynamic>> posts) {
-    return ListView.builder(
+    return ListView.separated(
       itemCount: posts.length,
+      separatorBuilder: (context, index) => Divider(
+        color: Colors.grey[300], // 구분선 색상
+        thickness: 1.0, // 구분선 두께
+      ),
       itemBuilder: (context, index) {
-        return Card(
-          margin: EdgeInsets.all(8.0),
-          child: Padding(
-            padding: EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.person),
+        return Container(
+          color: Colors.grey[100], // 게시글 배경색을 회색으로 설정
+          child: Card(
+            margin: EdgeInsets.zero, // Card 위젯의 외부 여백 제거
+            color: Colors.white, // Card 배경색 흰색으로 설정
+            child: Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      child: Image.asset(
+                        'assets/img/man.png',
+                      ),
+                    ),
+                    title: Text(posts[index]['username']),
+                    subtitle: Text('${posts[index]['time'].difference(DateTime.now()).inMinutes.abs()}분 전'),
+                    trailing: Icon(Icons.more_vert),
                   ),
-                  title: Text(posts[index]['username']),
-                  subtitle: Text('${posts[index]['time'].difference(DateTime.now()).inMinutes.abs()}분 전'),
-                  trailing: Icon(Icons.more_vert),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(posts[index]['content']),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/img/heart.png',
-                            width: 20,
-                            height: 20,
-                            color: posts[index]['liked'] ? Colors.red : Colors.black,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(posts[index]['content']),
+                  ),
+                  Row(
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Image.asset(
+                              'assets/img/heart.png',
+                              width: 20,
+                              height: 20,
+                              color: posts[index]['liked'] ? Colors.red : Colors.black,
+                            ),
+                            onPressed: () {
+                              _toggleLike(index);
+                            },
                           ),
-                          onPressed: () {
-                            _toggleLike(index);
-                          },
-                        ),
-                        SizedBox(width: 4), // 아이콘과 숫자 사이의 간격
-                        Text('${posts[index]['likes']}'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/img/chat.png',
-                            width: 20,
-                            height: 20,
+                          SizedBox(width: 8), // 아이콘과 숫자 사이의 간격 조정
+                          Text('${posts[index]['likes']}'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Image.asset(
+                              'assets/img/chat.png',
+                              width: 20,
+                              height: 20,
+                            ),
+                            onPressed: () {
+                              // 댓글 버튼 로직
+                            },
                           ),
-                          onPressed: () {
-                            // 댓글 버튼 로직
-                          },
-                        ),
-                        SizedBox(width: 4), // 아이콘과 숫자 사이의 간격
-                        Text('${posts[index]['comments']}'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/img/share.png',
-                            width: 20,
-                            height: 20,
+                          SizedBox(width: 8), // 아이콘과 숫자 사이의 간격 조정
+                          Text('${posts[index]['comments']}'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Image.asset(
+                              'assets/img/share.png',
+                              width: 20,
+                              height: 20,
+                            ),
+                            onPressed: () {
+                              // 공유 버튼 로직
+                            },
                           ),
-                          onPressed: () {
-                            // 공유 버튼 로직
-                          },
-                        ),
-                        SizedBox(width: 4), // 아이콘과 숫자 사이의 간격
-                        Text('${posts[index]['shares']}'),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                          SizedBox(width: 8), // 아이콘과 숫자 사이의 간격 조정
+                          Text('${posts[index]['shares']}'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -194,3 +206,8 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     );
   }
 }
+
+
+
+
+

@@ -88,14 +88,17 @@ class _WritePostPageState extends State<WritePostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('글쓰기'),
+        title: Text('                          글쓰기'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: _uploadImage,
+          GestureDetector(
+            child: Image.asset(
+                'assets/img/finish.png'
+            ),
+            onTap: _uploadImage,
           ),
         ],
       ),
+      backgroundColor: Colors.white, // Scaffold 배경색을 하얀색으로 설정
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -105,12 +108,18 @@ class _WritePostPageState extends State<WritePostPage> {
               TextField(
                 decoration: InputDecoration(
                   hintText: '제목을 입력하세요.',
+                  filled: true, // 배경색을 적용하기 위해 filled 속성 사용
+                  fillColor: Colors.white, // TextField의 배경색을 하얀색으로 설정
+                  border: OutlineInputBorder(), // 경계선을 추가하여 텍스트 필드를 더 뚜렷하게
                 ),
               ),
               SizedBox(height: 10),
               TextField(
                 decoration: InputDecoration(
-                  hintText: '내용을 입력하세요.',
+                  hintText: '온실 주민과 이야기를 나눠보세요.',
+                  filled: true, // 배경색을 적용하기 위해 filled 속성 사용
+                  fillColor: Colors.white, // TextField의 배경색을 하얀색으로 설정
+                  border: OutlineInputBorder(), // 경계선을 추가하여 텍스트 필드를 더 뚜렷하게
                 ),
                 maxLines: 5,
               ),
@@ -130,6 +139,7 @@ class _WritePostPageState extends State<WritePostPage> {
                   }
                 },
               ),
+              SizedBox(height: 10), // 버튼과 이미지 사이의 여백 추가
               ElevatedButton(
                 onPressed: _pickImage,
                 child: Text('이미지 선택'),
