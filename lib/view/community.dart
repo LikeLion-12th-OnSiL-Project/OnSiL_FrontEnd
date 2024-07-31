@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lion12/view/post.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -98,7 +99,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 게시물 작성 페이지로 이동하는 로직 추가
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WritePostPage()));
         },
         child: Icon(Icons.add),
       ),

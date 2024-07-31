@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../provider/nick.dart'; // 필요에 따라 import 경로를 수정하세요.
 
 class Mypage extends StatefulWidget {
   const Mypage({super.key});
@@ -25,11 +24,11 @@ class _MypageState extends State<Mypage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if (token == null) {
-      // Handle the case where the token is not found
+      print('토큰을 찾을 수 없습니다.');
       return;
     }
 
-    String url = 'http://43.201.112.183/api/member-info';
+    String url = 'http://43.201.112.183/api'; // 사용자 정보 가져오기 URL
     try {
       var response = await http.get(
         Uri.parse(url),
@@ -39,6 +38,9 @@ class _MypageState extends State<Mypage> {
         },
       );
 
+      print('Fetch response status: ${response.statusCode}');
+      print('Fetch response body: ${response.body}');
+
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         setState(() {
@@ -46,10 +48,10 @@ class _MypageState extends State<Mypage> {
           profilePicUrl = data['profile_pic'];
         });
       } else {
-        print('Failed to load member info. Error: ${response.statusCode}');
+        print('회원 정보 로드 실패. 오류 코드: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error during fetching member info: $e');
+      print('회원 정보 로드 중 오류 발생: $e');
     }
   }
 
@@ -65,7 +67,9 @@ class _MypageState extends State<Mypage> {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.blue,
-                backgroundImage: profilePicUrl != null ? NetworkImage(profilePicUrl!) : null,
+                backgroundImage: profilePicUrl != null
+                    ? NetworkImage(profilePicUrl!)
+                    : null,
                 child: profilePicUrl == null ? Icon(Icons.person, size: 30) : null,
               ),
               SizedBox(width: 10),
@@ -73,7 +77,10 @@ class _MypageState extends State<Mypage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nickname ?? '????', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      nickname ?? '????',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                     SizedBox(height: 4),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,

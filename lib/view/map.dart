@@ -17,7 +17,12 @@ class _MapWidgetState extends State<MapWidget> {
   double? _distance;
   double? _estimatedTime;
 
-  final String apiKey = 'YOUR_API_KEY_HERE'; // Google Maps API Key 입력
+  final String apiKey = 'AIzaSyDV8lz2OkQK8zsSo3Y8S78SgNfJR9HJTMg'; // Google Maps API Key 입력
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> _getRoute() async {
     if (_startLocation == null || _endLocation == null) return;
@@ -35,7 +40,6 @@ class _MapWidgetState extends State<MapWidget> {
       if (response.statusCode == 200 && data['status'] == 'OK') {
         _processRoute(data);
       } else {
-        // 도보 경로를 찾지 못했을 경우 운전 모드로 시도
         print('Walking route not found, trying driving mode...');
         await _getRouteDriving();
       }
@@ -69,6 +73,8 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void _processRoute(Map<String, dynamic> data) {
+    if (data['routes'].isEmpty) return;
+
     final route = data['routes'][0];
     final leg = route['legs'][0];
     final distanceMeters = leg['distance']['value'];
@@ -83,6 +89,7 @@ class _MapWidgetState extends State<MapWidget> {
     final decodedPoints = _decodePolyline(polylinePoints);
 
     setState(() {
+      _polylines.clear(); // 기존 폴리라인 제거
       _polylines.add(Polyline(
         width: 5,
         polylineId: PolylineId('route'),
@@ -160,8 +167,8 @@ class _MapWidgetState extends State<MapWidget> {
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(
-              target: LatLng(37.532600, 127.024612), // 초기 위치
-              zoom: 14.4746,
+              target: LatLng(37.7749, -122.4194), // 초기 위치
+              zoom: 10.0,
             ),
             onMapCreated: (GoogleMapController controller) {
               _controller = controller;
