@@ -20,6 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   File? _image;
 
   Future<void> _pickImage() async {
@@ -38,6 +39,8 @@ class _SignupScreenState extends State<SignupScreen> {
     String password = _passwordController.text;
     String name = _nameController.text;
     String nickname = _nicknameController.text;
+    String email = _emailController.text;
+
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
@@ -45,6 +48,7 @@ class _SignupScreenState extends State<SignupScreen> {
       request.fields['password'] = password;
       request.fields['name'] = name;
       request.fields['nickname'] = nickname;
+      request.fields['email'] = email;
 
       if (_image != null) {
         final mimeTypeData = lookupMimeType(_image!.path)!.split('/');
@@ -122,6 +126,13 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _nicknameController,
                 decoration: InputDecoration(
                   hintText: 'Nickname',
+                ),
+              ),
+              SizedBox(height: 20),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  hintText: 'email',
                 ),
               ),
               SizedBox(height: 20),

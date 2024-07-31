@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lion12/view/post.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -99,7 +98,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => WritePostPage()));
+          // 게시물 작성 페이지로 이동하는 로직 추가
         },
         child: Icon(Icons.add),
       ),
@@ -138,7 +137,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
                       children: [
                         IconButton(
                           icon: Image.asset(
-                            'assets/heart.png',
+                            'assets/img/heart.png',
                             width: 20,
                             height: 20,
                             color: posts[index]['liked'] ? Colors.red : Colors.black,
@@ -156,7 +155,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
                       children: [
                         IconButton(
                           icon: Image.asset(
-                            'assets/chat.png',
+                            'assets/img/chat.png',
                             width: 20,
                             height: 20,
                           ),
@@ -173,7 +172,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
                       children: [
                         IconButton(
                           icon: Image.asset(
-                            'assets/share.png',
+                            'assets/img/share.png',
                             width: 20,
                             height: 20,
                           ),

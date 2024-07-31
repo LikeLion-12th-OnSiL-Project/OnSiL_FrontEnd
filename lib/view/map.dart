@@ -17,10 +17,11 @@ class _MapWidgetState extends State<MapWidget> {
   double? _distance;
   double? _estimatedTime;
 
+  final String apiKey = 'YOUR_API_KEY_HERE'; // Google Maps API Key 입력
+
   Future<void> _getRoute() async {
     if (_startLocation == null || _endLocation == null) return;
 
-    final apiKey = 'YOUR_NEW_API_KEY'; // 유효한 Directions API 키 입력
     final origin = '${_startLocation!.latitude},${_startLocation!.longitude}';
     final destination = '${_endLocation!.latitude},${_endLocation!.longitude}';
     final url =
@@ -28,7 +29,6 @@ class _MapWidgetState extends State<MapWidget> {
 
     try {
       final response = await http.get(Uri.parse(url));
-
       final data = jsonDecode(response.body);
       print("API Response: $data");
 
@@ -47,7 +47,6 @@ class _MapWidgetState extends State<MapWidget> {
   Future<void> _getRouteDriving() async {
     if (_startLocation == null || _endLocation == null) return;
 
-    final apiKey = 'AIzaSyDV8lz2OkQK8zsSo3Y8S78SgNfJR9HJTMg'; // 유효한 Directions API 키 입력
     final origin = '${_startLocation!.latitude},${_startLocation!.longitude}';
     final destination = '${_endLocation!.latitude},${_endLocation!.longitude}';
     final url =
@@ -55,7 +54,6 @@ class _MapWidgetState extends State<MapWidget> {
 
     try {
       final response = await http.get(Uri.parse(url));
-
       final data = jsonDecode(response.body);
       print("API Response (Driving): $data");
 

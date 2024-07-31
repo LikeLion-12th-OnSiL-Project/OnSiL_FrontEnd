@@ -29,9 +29,9 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
     controller = TabController(length: 5, vsync: this);
     controller.addListener(tabListener);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showNicknameDialog();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _showNicknameDialog();
+    // });
   }
 
   @override
@@ -48,76 +48,76 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _showNicknameDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('닉네임 입력'),
-          content: TextField(
-            controller: _nicknameController,
-            decoration: InputDecoration(hintText: '닉네임을 입력하세요'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (_nicknameController.text.isNotEmpty) {
-                  Provider.of<NicknameProvider>(context, listen: false)
-                      .setNickname(_nicknameController.text);
-                  Navigator.of(context).pop();
-                  _showNicknameConfirmation(_nicknameController.text);
-                } else {
-                  _showErrorDialog();
-                }
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showNicknameConfirmation(String nickname) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('닉네임 설정 완료'),
-          content: Text('설정된 닉네임: $nickname'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('오류'),
-          content: Text('닉네임을 입력해주세요.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showNicknameDialog() {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('닉네임 입력'),
+  //         content: TextField(
+  //           controller: _nicknameController,
+  //           decoration: InputDecoration(hintText: '닉네임을 입력하세요'),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               if (_nicknameController.text.isNotEmpty) {
+  //                 Provider.of<NicknameProvider>(context, listen: false)
+  //                     .setNickname(_nicknameController.text);
+  //                 Navigator.of(context).pop();
+  //                 _showNicknameConfirmation(_nicknameController.text);
+  //               } else {
+  //                 _showErrorDialog();
+  //               }
+  //             },
+  //             child: Text('확인'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // void _showNicknameConfirmation(String nickname) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('닉네임 설정 완료'),
+  //         content: Text('설정된 닉네임: $nickname'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('확인'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // void _showErrorDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('오류'),
+  //         content: Text('닉네임을 입력해주세요.'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('확인'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
