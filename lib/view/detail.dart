@@ -116,22 +116,6 @@ class _DetailPageState extends State<DetailPage> {
                   ],
                 ),
                 SizedBox(width: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Image.asset(
-                        'assets/img/share.png',
-                        width: 20,
-                        height: 20,
-                      ),
-                      onPressed: () {
-                        // 공유 버튼 로직
-                      },
-                    ),
-                    Text('${widget.post['shares']}'),
-                  ],
-                ),
               ],
             ),
             Divider(color: Colors.grey[300]),

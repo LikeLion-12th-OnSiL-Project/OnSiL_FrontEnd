@@ -86,19 +86,28 @@ class _WritePostPageState extends State<WritePostPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('                          글쓰기'),
+        backgroundColor: Colors.white,
+        title: Text('                 커뮤니티 글 쓰기',
+            style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         actions: [
-          GestureDetector(
-            child: Image.asset(
-                'assets/img/finish.png'
+          TextButton(
+            onPressed: () {
+              // 완료 버튼을 눌렀을 때의 로직
+            },
+            child: Container(
+              width: 100, // 원하는 너비로 설정
+              height: 100, // 원하는 높이로 설정
+              child: Image.asset('assets/img/finish2.png'),
             ),
-            onTap: _uploadImage,
-          ),
+          )
         ],
       ),
-      backgroundColor: Colors.white, // Scaffold 배경색을 하얀색으로 설정
+       // Scaffold 배경색을 하얀색으로 설정
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -108,42 +117,94 @@ class _WritePostPageState extends State<WritePostPage> {
               TextField(
                 decoration: InputDecoration(
                   hintText: '제목을 입력하세요.',
+                  hintStyle: TextStyle(
+                    fontSize: 16.0, // hintText의 글꼴 크기
+                    fontWeight: FontWeight.w500, // hintText의 글꼴 두께 (예: w600은 보통 두꺼운 글꼴)
+                    color: Colors.grey, // hintText의 색상 (선택사항)
+                  ),
                   filled: true, // 배경색을 적용하기 위해 filled 속성 사용
                   fillColor: Colors.white, // TextField의 배경색을 하얀색으로 설정
-                  border: OutlineInputBorder(), // 경계선을 추가하여 텍스트 필드를 더 뚜렷하게
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
+                  ),
                 ),
               ),
+
               SizedBox(height: 10),
               TextField(
                 decoration: InputDecoration(
                   hintText: '온실 주민과 이야기를 나눠보세요.',
+                  hintStyle: TextStyle(
+                    fontSize: 16.0, // hintText의 글꼴 크기
+                    fontWeight: FontWeight.w500, // hintText의 글꼴 두께 (예: w600은 보통 두꺼운 글꼴)
+                    color: Colors.grey, // hintText의 색상 (선택사항)
+                  ),
                   filled: true, // 배경색을 적용하기 위해 filled 속성 사용
                   fillColor: Colors.white, // TextField의 배경색을 하얀색으로 설정
-                  border: OutlineInputBorder(), // 경계선을 추가하여 텍스트 필드를 더 뚜렷하게
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
+                  ),
                 ),
                 maxLines: 5,
               ),
               SizedBox(height: 10),
-              _image == null
-                  ? Text('선택된 이미지가 없습니다.')
-                  : FutureBuilder<File>(
-                future: Future<File>.value(File(_image!.path)),
-                builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasError) {
-                      return Text('이미지 로드 중 오류 발생: ${snapshot.error}');
-                    }
-                    return Image.file(snapshot.data!);
-                  } else {
-                    return CircularProgressIndicator();
-                  }
-                },
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.blue,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: _image == null
+                      ? Center(child: Text('이미지를 선택하세요.', style: TextStyle(color: Colors.grey)))
+                      : ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Image.file(
+                      File(_image!.path),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 10), // 버튼과 이미지 사이의 여백 추가
               ElevatedButton(
                 onPressed: _pickImage,
-                child: Text('이미지 선택'),
-              ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // 버튼 색상을 하늘색으로 설정
+                ),
+                child: Image.asset('assets/img/photo.png'),
+              )
+
             ],
           ),
         ),

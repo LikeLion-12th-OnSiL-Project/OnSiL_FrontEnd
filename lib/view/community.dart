@@ -188,23 +188,6 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
                             Text('${posts[index]['comments']}'),
                           ],
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Image.asset(
-                                'assets/img/share.png',
-                                width: 20,
-                                height: 20,
-                              ),
-                              onPressed: () {
-                                // 공유 버튼 로직
-                              },
-                            ),
-                            SizedBox(width: 8), // 아이콘과 숫자 사이의 간격 조정
-                            Text('${posts[index]['shares']}'),
-                          ],
-                        ),
                       ],
                     ),
                   ],

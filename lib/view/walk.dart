@@ -50,13 +50,14 @@ class MapScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
+      floatingActionButton: GestureDetector(
+        onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => MapWidget()));
         },
-        child: Icon(Icons.add),
+        child: Image.asset('assets/img/add.png'),
+
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+
     );
   }
 }
@@ -134,6 +135,7 @@ class WalkPost extends StatefulWidget {
 class _WalkPostState extends State<WalkPost> {
   int _likes = 126; // 초기 좋아요 수
   bool _isLiked = false; // 좋아요 상태
+  int _comments = 1;
 
   void _toggleLikes() {
     setState(() {
@@ -155,9 +157,8 @@ class _WalkPostState extends State<WalkPost> {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: Text('김'),
+              Image.asset(
+                'assets/img/man.png',
               ),
               SizedBox(width: 8),
               Column(
@@ -197,36 +198,23 @@ class _WalkPostState extends State<WalkPost> {
                     ),
                   ),
                   SizedBox(width: 4),
-                  Text('$_likes'), // 좋아요 수 표시
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      // 댓글 기능 추가
-                    },
-                    child: Image.asset(
-                      'assets/img/commu.png', // 댓글 버튼 이미지 경로
+
+                  Text('$_likes'),
+                  // 좋아요 수 표시
+                  SizedBox(width: 20)
+                  ,
+                  IconButton(
+                    onPressed:() {},
+                    icon: Image.asset(
+                      'assets/img/chat.png', // 댓글 버튼 이미지 경로
                       width: 24, // 버튼 크기 조절
                       height: 24,
                     ),
                   ),
+                  Text('$_comments'),
                   SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      // 공유 기능 추가
-                    },
-                    child: Image.asset(
-                      'assets/img/share.png', // 공유 버튼 이미지 경로
-                      width: 24, // 버튼 크기 조절
-                      height: 24,
-                    ),
-                  ),
+
                 ],
-              ),
-              IconButton(
-                icon: Icon(Icons.more_horiz),
-                onPressed: () {
-                  // 더보기 기능 추가
-                },
               ),
             ],
           ),

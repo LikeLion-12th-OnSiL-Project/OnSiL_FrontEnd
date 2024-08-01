@@ -63,10 +63,7 @@ class _MypageState extends State<Mypage> {
           Row(
             children: [
               CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.blue,
-                backgroundImage: profilePicUrl != null ? NetworkImage(profilePicUrl!) : null,
-                child: profilePicUrl == null ? Icon(Icons.person, size: 30) : null,
+                child: Image.asset('assets/img/man.png', width: 60, height: 60),
               ),
               SizedBox(width: 10),
               Expanded(
@@ -126,9 +123,14 @@ class _MypageState extends State<Mypage> {
         ),
         SizedBox(height: 10),
         Text(
-          '안서동 산책러님의 건강상태는\n‘꾸준한 관리 필요’ 상태입니다. 😌\n규칙적인 식사와 가벼운 걷기를 추천드려요.',
-          style: TextStyle(fontSize: 14),
-        ),
+          '          안서동 산책러님의 건강상태는\n          ‘꾸준한 관리 필요’ 상태입니다. 😌\n        규칙적인 식사와 가벼운 걷기를 추천드려요.',
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        )
       ],
     );
   }
@@ -153,6 +155,7 @@ class _MypageState extends State<Mypage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('글자크기', style: TextStyle(fontSize: 16)),
+        SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -184,22 +187,35 @@ class _MypageState extends State<Mypage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildActivityRow(Icons.edit, '내가 작성한 산책코스', 0),
-        _buildActivityRow(Icons.edit, '내가 작성한 게시물', 0),
-        _buildActivityRow(Icons.favorite, '내가 좋아한 산책코스', 0),
-        _buildActivityRow(Icons.favorite, '내가 좋아한 게시물', 0),
+        Divider(
+          color: Colors.grey,
+          thickness: 1,
+          indent: 0,
+          endIndent: 0,
+        ),
+        _buildActivityRow('assets/img/plus.png', '내가 작성한 산책코스', 0, fontSize: 20),
+        _buildActivityRow('assets/img/plus.png', '내가 작성한 게시물', 0, fontSize: 20),
+        _buildActivityRow('assets/img/heart.png', '내가 좋아한 산책코스', 0, fontSize: 20),
+        _buildActivityRow('assets/img/heart.png', '내가 좋아한 게시물', 0, fontSize: 20),
       ],
     );
   }
 
-  Widget _buildActivityRow(IconData icon, String label, int count) {
+  Widget _buildActivityRow(String imagePath, String label, int count, {double fontSize = 16}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Image.asset(
+            imagePath,
+            width: 24, // 이미지 너비 조절
+            height: 24, // 이미지 높이 조절
+          ),
           SizedBox(width: 10),
-          Text('$label $count', style: TextStyle(fontSize: 16)),
+          Text(
+            '$label $count',
+            style: TextStyle(fontSize: fontSize),
+          ),
         ],
       ),
     );
