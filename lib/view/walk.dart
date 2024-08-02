@@ -46,7 +46,16 @@ class MapScreen extends StatelessWidget {
               ),
             ),
             Divider(),
-            WalkPost(),
+            WalkPost(
+              post: {
+                'username': '닉네임',
+                'time': DateTime.now().subtract(Duration(minutes: 30)),
+                'content': '천호지 한 바퀴 코스 +5km',
+                'liked': false,
+                'likes': 126,
+                'comments': 1,
+              },
+            ),
           ],
         ),
       ),
@@ -55,9 +64,7 @@ class MapScreen extends StatelessWidget {
           Navigator.push(context, MaterialPageRoute(builder: (context) => MapWidget()));
         },
         child: Image.asset('assets/img/add.png'),
-
       ),
-
     );
   }
 }
@@ -87,7 +94,8 @@ class RecommendedCourseCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white, // 카드 배경색을 하얀색으로 설정
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [ // 카드에 그림자를 추가하여 시각적으로 분리
+          boxShadow: [
+            // 카드에 그림자를 추가하여 시각적으로 분리
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
@@ -128,6 +136,10 @@ class RecommendedCourseCard extends StatelessWidget {
 }
 
 class WalkPost extends StatefulWidget {
+  final Map<String, dynamic> post;
+
+  const WalkPost({required this.post, Key? key}) : super(key: key);
+
   @override
   _WalkPostState createState() => _WalkPostState();
 }
@@ -150,75 +162,253 @@ class _WalkPostState extends State<WalkPost> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Image.asset(
-                'assets/img/man.png',
-              ),
-              SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('김순자님', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('천호지 한 바퀴 코스 +5km'),
-                ],
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailPage(post: widget.post),
           ),
-          SizedBox(height: 8),
-          GestureDetector(
-            onTap: () {
-              // 지도 이미지 클릭 시 동작 추가
-            },
-            child: Container(
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  'assets/img/man.png',
+                ),
+                SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('닉네임',),
+                    Text('천호지 한 바퀴 코스 +5km'),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Container(
               height: 200,
               color: Colors.white, // 지도 이미지 배경색을 하얀색으로 설정
               child: Center(
                 child: Text('지도 이미지'),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: _toggleLikes,
-                    child: Image.asset(
-                      _isLiked ? 'assets/img/heart.png' : 'assets/img/heart.png', // 좋아요 버튼 이미지 경로
-                      width: 24, // 버튼 크기 조절
-                      height: 24,
-                      color: _isLiked ? Colors.red : Colors.black,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: _toggleLikes,
+                      child: Image.asset(
+                        _isLiked ? 'assets/img/heart.png' : 'assets/img/heart.png', // 좋아요 버튼 이미지 경로
+                        width: 24, // 버튼 크기 조절
+                        height: 24,
+                        color: _isLiked ? Colors.red : Colors.black,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 4),
-
-                  Text('$_likes'),
-                  // 좋아요 수 표시
-                  SizedBox(width: 20)
-                  ,
-                  IconButton(
-                    onPressed:() {},
-                    icon: Image.asset(
-                      'assets/img/chat.png', // 댓글 버튼 이미지 경로
-                      width: 24, // 버튼 크기 조절
-                      height: 24,
+                    SizedBox(width: 4),
+                    Text('$_likes'),
+                    // 좋아요 수 표시
+                    SizedBox(width: 20),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Image.asset(
+                        'assets/img/chat.png', // 댓글 버튼 이미지 경로
+                        width: 24, // 버튼 크기 조절
+                        height: 24,
+                      ),
                     ),
-                  ),
-                  Text('$_comments'),
-                  SizedBox(width: 20),
+                    Text('$_comments'),
+                    SizedBox(width: 20),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-                ],
-              ),
-            ],
+class DetailPage extends StatefulWidget {
+  final Map<String, dynamic> post;
+
+  const DetailPage({required this.post, Key? key}) : super(key: key);
+
+  @override
+  _DetailPageState createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  int helpCount = 0;
+  bool isHelped = false;
+
+  void _toggleHelp() {
+    setState(() {
+      if (isHelped) {
+        helpCount--;
+      } else {
+        helpCount++;
+      }
+      isHelped = !isHelped;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white, // 배경색을 흰색으로 설정
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text('', style: TextStyle(color: Colors.black)),
+        actions: [
+          IconButton(
+            icon: Image.asset('assets/img/bell.png'),
+            onPressed: () {},
           ),
         ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: Image.asset(
+                  'assets/img/man.png',
+                ),
+              ),
+              title: Text(widget.post['username']),
+              subtitle: Text('${widget.post['time'].difference(DateTime.now()).inMinutes.abs()}분 전'),
+            ),
+            SizedBox(height: 8.0),
+            SizedBox(height: 8.0),
+            Text(
+              widget.post['content'],
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 16.0),
+            Container(
+              height: 200,
+              color: Colors.grey[300],
+            ),
+            SizedBox(height: 16.0),
+            Row(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Image.asset(
+                        'assets/img/heart.png',
+                        width: 20,
+                        height: 20,
+                        color: widget.post['liked'] ? Colors.red : Colors.black,
+                      ),
+                      onPressed: () {
+                        // 좋아요 버튼 로직
+                      },
+                    ),
+                    Text('${widget.post['likes']}'),
+                  ],
+                ),
+                SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Image.asset(
+                        'assets/img/chat.png',
+                        width: 20,
+                        height: 20,
+                      ),
+                      onPressed: () {
+                        // 댓글 버튼 로직
+                      },
+                    ),
+                    Text('${widget.post['comments']}'),
+                  ],
+                ),
+                SizedBox(width: 8),
+              ],
+            ),
+            Divider(color: Colors.grey[300]),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                '댓글 00',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: Image.asset(
+                  'assets/img/man.png',
+                ),
+              ),
+              title: Text(widget.post['username']),
+              subtitle: Text('${widget.post['time'].difference(DateTime.now()).inMinutes.abs()}분 전\n댓글 내용'),
+            ),
+            Divider(color: Colors.grey[300]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.reply, size: 20),
+                    SizedBox(width: 4),
+                    Text('답글 달기', style: TextStyle(fontSize: 14)),
+                    SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: _toggleHelp,
+                      child: Row(
+                        children: [
+                          Icon(
+                            isHelped ? Icons.favorite : Icons.favorite_border,
+                            size: 20,
+                            color: isHelped ? Colors.red : null,
+                          ),
+                          SizedBox(width: 4),
+                          Text('도움 돼요 $helpCount', style: TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Icon(Icons.more_vert, size: 20),
+              ],
+            ),
+            Spacer(),
+            TextField(
+              decoration: InputDecoration(
+                hintText: '댓글을 입력해주세요.',
+                border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

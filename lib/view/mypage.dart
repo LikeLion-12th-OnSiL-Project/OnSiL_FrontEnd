@@ -70,7 +70,7 @@ class _MypageState extends State<Mypage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nickname ?? '????', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(nickname ?? '닉네임', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 4),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -126,7 +126,7 @@ class _MypageState extends State<Mypage> {
           '          안서동 산책러님의 건강상태는\n          ‘꾸준한 관리 필요’ 상태입니다. 😌\n        규칙적인 식사와 가벼운 걷기를 추천드려요.',
           style: TextStyle(
             fontSize: 20,
-            color: Colors.grey,
+            color: Colors.black54,
             fontWeight: FontWeight.bold,
           ),
           textAlign: TextAlign.center,
