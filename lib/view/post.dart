@@ -185,7 +185,7 @@ class _WritePostPageState extends State<WritePostPage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: _image == null
-                      ? Center(child: Text('이미지를 선택하세요.', style: TextStyle(color: Colors.grey)))
+                      ? Center(child: Text('사진를 선택하세요.', style: TextStyle(color: Colors.grey)))
                       : ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
                     child: Image.file(
@@ -197,12 +197,9 @@ class _WritePostPageState extends State<WritePostPage> {
                 ),
               ),
               SizedBox(height: 10), // 버튼과 이미지 사이의 여백 추가
-              ElevatedButton(
-                onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // 버튼 색상을 하늘색으로 설정
-                ),
-                child: Image.asset('assets/img/photo.png'),
+              GestureDetector(
+                onTap: _pickImage,
+                child: Image.asset('assets/img/photo3.png'),
               )
 
             ],

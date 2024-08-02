@@ -284,14 +284,9 @@ class _MapWidgetState extends State<MapWidget> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _calculateRoute,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: Text('경로 계산'),
+            GestureDetector(
+              onTap: _calculateRoute,
+              child: Image.asset('assets/img/route3.png',),
             ),
             SizedBox(height: 10),
             if (_distance != null && _estimatedTime != null)
