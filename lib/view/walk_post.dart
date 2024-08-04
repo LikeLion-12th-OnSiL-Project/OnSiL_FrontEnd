@@ -2,20 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
 import 'map.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
-
   @override
   _MapScreenState createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
   List<dynamic> _courses = [];
-  GoogleMapController? _mapController;
-  Set<Marker> _markers = {};
-  String _apiKey = 'AIzaSyDV8lz2OkQK8zsSo3Y8S78SgNfJR9HJTMg';
 
   @override
   void initState() {
@@ -24,7 +20,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _fetchCourses() async {
-    final response = await http.get(Uri.parse('http://13.125.226.133/location'));
+    final response = await http.get(Uri.parse('http://your_backend_url/location'));
     if (response.statusCode == 200) {
       setState(() {
         _courses = json.decode(response.body);
@@ -65,7 +61,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             Divider(),
-            ..._courses.map((course) => WalkPost(post: course)).toList(),
+            _courses.isNotEmpty ? WalkPost(post: _courses[0]) : Container(),
           ],
         ),
       ),
@@ -157,8 +153,6 @@ class _WalkPostState extends State<WalkPost> {
   int _likes = 0; // 초기 좋아요 수
   bool _isLiked = false; // 좋아요 상태
   int _comments = 0;
-  GoogleMapController? _mapController;
-  Set<Polyline> _polylines = {};
 
   void _toggleLikes() {
     setState(() {
@@ -176,21 +170,6 @@ class _WalkPostState extends State<WalkPost> {
     super.initState();
     _likes = widget.post['likes'];
     _comments = widget.post['replies'];
-    _addRoute();
-  }
-
-  void _addRoute() {
-    setState(() {
-      _polylines.add(Polyline(
-        polylineId: PolylineId('route'),
-        points: [
-          LatLng(widget.post['start_latitude'].toDouble(), widget.post['start_longitude'].toDouble()),
-          LatLng(widget.post['end_latitude'].toDouble(), widget.post['end_longitude'].toDouble()),
-        ],
-        color: Colors.blue,
-        width: 5,
-      ));
-    });
   }
 
   @override
@@ -230,29 +209,15 @@ class _WalkPostState extends State<WalkPost> {
               color: Colors.white,
               child: GoogleMap(
                 initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                    widget.post['start_latitude'].toDouble(),
-                    widget.post['start_longitude'].toDouble(),
-                  ),
+                  target: LatLng(widget.post['start_latitude'], widget.post['start_longitude']),
                   zoom: 14,
                 ),
                 markers: {
                   Marker(
-                    markerId: MarkerId('startMarker'),
-                    position: LatLng(
-                      widget.post['start_latitude'].toDouble(),
-                      widget.post['start_longitude'].toDouble(),
-                    ),
-                  ),
-                  Marker(
-                    markerId: MarkerId('endMarker'),
-                    position: LatLng(
-                      widget.post['end_latitude'].toDouble(),
-                      widget.post['end_longitude'].toDouble(),
-                    ),
+                    markerId: MarkerId('courseMarker'),
+                    position: LatLng(widget.post['end_latitude'], widget.post['end_longitude']),
                   ),
                 },
-                polylines: _polylines,
               ),
             ),
             Row(
@@ -343,90 +308,123 @@ class _DetailPageState extends State<DetailPage> {
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Image.asset('assets/img/man.png'),
-              title: Text(widget.post['writer']),
-              subtitle: Text(widget.post['content']),
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: Image.asset(
+                  'assets/img/man.png',
+                ),
+              ),
+              title: Text(widget.post['username']),
+              subtitle: Text('${widget.post['time'].difference(DateTime.now()).inMinutes.abs()}분 전'),
             ),
+            SizedBox(height: 8.0),
+            SizedBox(height: 8.0),
+            Text(
+              widget.post['content'],
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 16.0),
             Container(
               height: 200,
-              color: Colors.white,
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                    widget.post['start_latitude'].toDouble(),
-                    widget.post['start_longitude'].toDouble(),
-                  ),
-                  zoom: 14,
-                ),
-                markers: {
-                  Marker(
-                    markerId: MarkerId('startMarker'),
-                    position: LatLng(
-                      widget.post['start_latitude'].toDouble(),
-                      widget.post['start_longitude'].toDouble(),
-                    ),
-                  ),
-                  Marker(
-                    markerId: MarkerId('endMarker'),
-                    position: LatLng(
-                      widget.post['end_latitude'].toDouble(),
-                      widget.post['end_longitude'].toDouble(),
-                    ),
-                  ),
-                },
-                polylines: {
-                  Polyline(
-                    polylineId: PolylineId('route'),
-                    points: [
-                      LatLng(
-                        widget.post['start_latitude'].toDouble(),
-                        widget.post['start_longitude'].toDouble(),
-                      ),
-                      LatLng(
-                        widget.post['end_latitude'].toDouble(),
-                        widget.post['end_longitude'].toDouble(),
-                      ),
-                    ],
-                    color: Colors.blue,
-                    width: 5,
-                  ),
-                },
-              ),
+              color: Colors.grey[300],
             ),
+            SizedBox(height: 16.0),
             Row(
               children: [
-                TextButton.icon(
-                  onPressed: _toggleHelp,
-                  icon: Icon(
-                    Icons.thumb_up,
-                    color: isHelped ? Colors.blue : Colors.grey,
-                  ),
-                  label: Text(
-                    '도움이 돼요 ${helpCount}',
-                    style: TextStyle(
-                      color: isHelped ? Colors.blue : Colors.grey,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Image.asset(
+                        'assets/img/heart.png',
+                        width: 20,
+                        height: 20,
+                        color: widget.post['liked'] ? Colors.red : Colors.black,
+                      ),
+                      onPressed: () {
+                        // 좋아요 버튼 로직
+                      },
                     ),
-                  ),
+                    Text('${widget.post['likes']}'),
+                  ],
                 ),
-                TextButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.reply, color: Colors.grey),
-                  label: Text('공유하기', style: TextStyle(color: Colors.grey)),
+                SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Image.asset(
+                        'assets/img/chat.png',
+                        width: 20,
+                        height: 20,
+                      ),
+                      onPressed: () {
+                        // 댓글 버튼 로직
+                      },
+                    ),
+                    Text('${widget.post['comments']}'),
+                  ],
                 ),
+                SizedBox(width: 8),
               ],
             ),
-            Divider(),
-            // 댓글 리스트 추가
-            Expanded(
-              child: ListView.builder(
-                itemCount: 5, // 샘플 데이터 수
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: Image.asset('assets/img/man.png'),
-                    title: Text('댓글 작성자 $index'),
-                    subtitle: Text('댓글 내용 $index'),
-                  );
-                },
+            Divider(color: Colors.grey[300]),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                '댓글 00',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: Image.asset(
+                  'assets/img/man.png',
+                ),
+              ),
+              title: Text(widget.post['username']),
+              subtitle: Text('${widget.post['time'].difference(DateTime.now()).inMinutes.abs()}분 전\n댓글 내용'),
+            ),
+            Divider(color: Colors.grey[300]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.reply, size: 20),
+                    SizedBox(width: 4),
+                    Text('답글 달기', style: TextStyle(fontSize: 14)),
+                    SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: _toggleHelp,
+                      child: Row(
+                        children: [
+                          Icon(
+                            isHelped ? Icons.favorite : Icons.favorite_border,
+                            size: 20,
+                            color: isHelped ? Colors.red : null,
+                          ),
+                          SizedBox(width: 4),
+                          Text('도움 돼요 $helpCount', style: TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Icon(Icons.more_vert, size: 20),
+              ],
+            ),
+            Spacer(),
+            TextField(
+              decoration: InputDecoration(
+                hintText: '댓글을 입력해주세요.',
+                border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {},
+                ),
               ),
             ),
           ],

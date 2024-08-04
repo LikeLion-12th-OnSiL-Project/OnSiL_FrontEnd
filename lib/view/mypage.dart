@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Mypage extends StatefulWidget {
   const Mypage({super.key});
@@ -28,7 +28,7 @@ class _MypageState extends State<Mypage> {
       return;
     }
 
-    String url = 'http://43.201.112.183/api'; // 사용자 정보 가져오기 URL
+    String url = 'http://13.125.226.133/api/mypage'; // 사용자 정보 가져오기 URL
     try {
       var response = await http.get(
         Uri.parse(url),

@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 import 'dart:io';
-import 'package:path/path.dart' as path; // 'path' 패키지를 'path'로 별칭
+import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:lion12/user/view/login_screen.dart';
@@ -21,7 +21,10 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailVerificationCodeController = TextEditingController();
   File? _image;
+  bool _isEmailVerified = false;
+  bool _isVerificationRequested = false;
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -100,9 +103,8 @@ class _SignupScreenState extends State<SignupScreen> {
       if (response.statusCode == 200) {
         print('이미지 업로드 성공');
         final responseString = await response.stream.bytesToString();
-        // 응답에서 이미지 URL을 추출합니다
         final responseJson = json.decode(responseString);
-        return responseJson['url']; // 응답 구조에 따라 조정 필요
+        return responseJson['url'];
       } else {
         print('이미지 업로드 실패. 오류 코드: ${response.statusCode}');
         return null;
@@ -113,13 +115,97 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  Future<void> _sendVerificationEmail() async {
+    String email = _emailController.text;
+
+    if (email.isEmpty) {
+      _showErrorDialog('이메일을 입력해주세요.');
+      return;
+    }
+
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      _showErrorDialog('올바른 이메일 형식을 입력해주세요.');
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://13.125.226.133/api/mailSend'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _isVerificationRequested = true;
+        });
+        _showInfoDialog('인증 이메일이 발송되었습니다.');
+      } else {
+        _showErrorDialog('이메일 전송 실패. 오류 코드: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showErrorDialog('이메일 전송 중 오류 발생: $e');
+    }
+  }
+
+  Future<void> _verifyEmailCode() async {
+    String email = _emailController.text;
+    String verificationCode = _emailVerificationCodeController.text;
+
+    if (verificationCode.isEmpty) {
+      _showErrorDialog('인증 코드를 입력해주세요.');
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://13.125.226.133/api/mailauthCheck'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'email': email, 'authNum': verificationCode}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _isEmailVerified = true;
+        });
+        _showInfoDialog('이메일 인증이 완료되었습니다.');
+      } else {
+        _showErrorDialog('인증 실패. 오류 코드: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showErrorDialog('인증 중 오류 발생: $e');
+    }
+  }
+
   Future<void> _register(BuildContext buildContext) async {
-    String url = 'http://13.125.226.133/api/sign-up'; // 회원 가입용 URL
     String memberId = _memberIdController.text;
     String password = _passwordController.text;
     String name = _nameController.text;
     String nickname = _nicknameController.text;
     String email = _emailController.text;
+
+    if (memberId.isEmpty ||
+        password.isEmpty ||
+        name.isEmpty ||
+        nickname.isEmpty ||
+        email.isEmpty) {
+      _showErrorDialog('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    if (password.length < 8) {
+      _showErrorDialog('비밀번호는 8자리 이상이어야 합니다.');
+      return;
+    }
+
+    if (!_isEmailVerified) {
+      _showErrorDialog('이메일 인증이 완료되지 않았습니다.');
+      return;
+    }
 
     String? profilePicUrl = await _uploadImage();
 
@@ -134,7 +220,7 @@ class _SignupScreenState extends State<SignupScreen> {
       });
 
       final response = await http.post(
-        Uri.parse(url),
+        Uri.parse('http://13.125.226.133/api/sign-up'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -149,12 +235,52 @@ class _SignupScreenState extends State<SignupScreen> {
         print('회원 가입 성공');
         print('응답 본문: ${response.body}');
       } else {
-        print('회원 가입 실패. 오류 코드: ${response.statusCode}');
+        _showErrorDialog('회원 가입 실패. 오류 코드: ${response.statusCode}');
         print('응답 본문: ${response.body}');
       }
     } catch (e) {
-      print('회원 가입 중 오류 발생: $e');
+      _showErrorDialog('회원 가입 중 오류 발생: $e');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext buildContext) {
+        return AlertDialog(
+          title: Text('오류'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(buildContext).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showInfoDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext buildContext) {
+        return AlertDialog(
+          title: Text('정보'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(buildContext).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -163,6 +289,7 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(
         title: Text('회원 가입'),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -178,11 +305,24 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: _image == null ? Icon(Icons.add_a_photo, size: 50) : null,
                 ),
               ),
+              ElevatedButton(
+                onPressed: _uploadImage,
+                child: Text('사진 업로드하기'),
+              ),
               SizedBox(height: 20),
               TextField(
                 controller: _memberIdController,
                 decoration: InputDecoration(
                   hintText: '아이디',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -190,6 +330,15 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _passwordController,
                 decoration: InputDecoration(
                   hintText: '비밀번호',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
                 obscureText: true,
               ),
@@ -198,6 +347,15 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _nameController,
                 decoration: InputDecoration(
                   hintText: '이름',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -205,6 +363,15 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _nicknameController,
                 decoration: InputDecoration(
                   hintText: '닉네임',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -212,21 +379,51 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _emailController,
                 decoration: InputDecoration(
                   hintText: '이메일',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _emailVerificationCodeController,
+                decoration: InputDecoration(
+                  hintText: '인증 코드',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  _register(context); // 회원 가입 API 호출
-                },
-                child: Text('회원 가입'),
+                onPressed: _sendVerificationEmail,
+                child: Text('이메일 인증 요청'),
+              ),
+              ElevatedButton(
+                onPressed: _verifyEmailCode,
+                child: Text('인증 코드 확인'),
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _uploadImage(); // 이미지 업로드 API 호출
+              GestureDetector(
+                onTap: () {
+                  _register(context);
                 },
-                child: Text('사진 업로드하기'),
+                child: Image.asset(
+                  'assets/img/login_button.png',
+                  width: 250,
+                ),
               ),
             ],
           ),

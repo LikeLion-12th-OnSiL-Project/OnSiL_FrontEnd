@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lion12/view/community.dart';
+import 'package:lion12/view/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:lion12/component/text_field.dart';
+import 'package:lion12/user/view/signup.dart';
 import 'dart:async';
 
 import '../../view/root.dart';
-import 'package:lion12/user/view/signup.dart';
-import 'package:lion12/component/text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -54,18 +56,28 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // 첫 번째 로고 이미지
-                SizedBox(height: 50),
-                Image.asset(
-                  'assets/img/logo1.png',
-                  width: 150, // 원하는 로고의 너비 설정
-                  height: 150, // 원하는 로고의 높이 설정
+                SizedBox(height: 70),
+                Container(
+                  width: 180, // 원하는 너비 설정
+                  height: 180, // 원하는 높이 설정
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/img/logo1.png'),
+                      fit: BoxFit.cover, // BoxFit 옵션을 선택하세요.
+                    ),
+                  ),
                 ),
-                SizedBox(height: 20), // 두 이미지 사이 간격 조절
+                // 두 이미지 사이 간격 조절
                 // 두 번째 로고 이미지
-                Image.asset(
-                  'assets/img/homes.png',
-                  width: 200, // 원하는 로고의 너비 설정
-                  height: 200, // 원하는 로고의 높이 설정
+                Container(
+                  width: 400, // 원하는 너비 설정
+                  height: 400, // 원하는 높이 설정
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/img/homes.png'),
+                      // BoxFit 옵션을 선택하세요.
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -77,6 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class LoginScreen1 extends StatefulWidget {
+  const LoginScreen1({super.key});
+
   @override
   _LoginScreen1State createState() => _LoginScreen1State();
 }
@@ -133,7 +147,6 @@ class _LoginScreen1State extends State<LoginScreen1> {
       print('로그인 중 오류 발생: $e');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -142,14 +155,13 @@ class _LoginScreen1State extends State<LoginScreen1> {
       },
       child: Scaffold(
         body: Container(
-          // 배경 화면
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF1E90FF),
-                Color(0xFF1E90FF), // 중간 파란색
+                Color(0xFFFFFFFF),
+                Color(0xFFFFFFFF),
                 Color(0xFFFFFFFF),
               ],
               stops: [0.0, 0.5, 1.0],
@@ -161,47 +173,66 @@ class _LoginScreen1State extends State<LoginScreen1> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // 첫 번째 로고 이미지
                   SizedBox(height: 50),
-                  Image.asset(
-                    'assets/img/logo1.png',
-                    width: 150, // 원하는 로고의 너비 설정
-                    height: 150, // 원하는 로고의 높이 설정
+                  Container(
+                    width: 180,
+                    height: 180,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/img/logo2.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                  SizedBox(height: 20), // 두 이미지 사이 간격 조절
-                  // 두 번째 로고 이미지
-                  Image.asset(
-                    'assets/img/homes.png',
-                    width: 200, // 원하는 로고의 너비 설정
-                    height: 200, // 원하는 로고의 높이 설정
-                  ),
-                  SizedBox(height: 40), // 두 이미지와 이메일 입력 칸 사이 간격 조절
-                  CustomTextFormField(
-                    hintText: 'MemberId',
+                  SizedBox(height: 40),
+                  TextField(
                     controller: _memberIdController,
-                    onChanged: (value) {},
-                  ),
-                  SizedBox(height: 20),
-                  CustomTextFormField(
-                    hintText: 'Password',
-                    obscureText: true,
-                    controller: _passwordController,
-                    onChanged: (value) {},
-                  ),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity, // 버튼을 화면 너비에 맞춤
-                    child: ElevatedButton(
-                      onPressed: _login,
-                      child: Text('Login'),
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        textStyle: TextStyle(fontSize: 18),
+                    decoration: InputDecoration(
+                      hintText: '아이디 입력',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                        borderSide: BorderSide(color: Colors.blue),
                       ),
                     ),
                   ),
                   SizedBox(height: 10),
-                  //카카오톡 로그인
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: '비밀번호 입력',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)), // 둥근 테두리
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity, // 부모의 너비만큼 사용
+                    child: GestureDetector(
+                      onTap: _login,
+                      child: Container(
+                        width: 600, // 원하는 너비로 설정
+                        child: Image.asset(
+                          'assets/img/login_button.png',
+                          fit: BoxFit.contain, // 이미지가 설정된 너비에 맞게 축소 또는 확대
+                        ),
+                      ),
+                    ),
+                  ),
+
+
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -209,22 +240,15 @@ class _LoginScreen1State extends State<LoginScreen1> {
                         MaterialPageRoute(builder: (context) => SignupScreen()),
                       );
                     },
-                    child: Image.asset(
-                      'assets/img/login.png',
-                      width: 250,
+                    child: Container(
+                      width: 600, // 원하는 너비로 설정
+                      child: Image.asset(
+                        'assets/img/signup2.png',
+                        fit: BoxFit.contain, // 이미지가 설정된 너비에 맞게 축소 또는 확대
+                      ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  TextButton(
-                    onPressed: _login,
-                    child: Text('회원 탈퇴'),
-                  ),
-                  // SizedBox(height: 10),
-                  TextButton(
-                    onPressed: _login,
-                    child: Text('가입한 계정이 기억나지 않나요?'),
-                  ),
-                  // SizedBox(height: 10),
+
                 ],
               ),
             ),
