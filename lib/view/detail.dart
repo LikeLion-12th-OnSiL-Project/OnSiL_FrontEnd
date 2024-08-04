@@ -1,17 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DetailPage extends StatefulWidget {
-  final Map<String, dynamic> post;
+  final int postId;
 
-  const DetailPage({required this.post, Key? key}) : super(key: key);
+  const DetailPage({required this.postId, Key? key}) : super(key: key);
 
   @override
   _DetailPageState createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
+  Map<String, dynamic>? post;
   int helpCount = 0;
   bool isHelped = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPostDetail();
+  }
+
+  Future<void> fetchPostDetail() async {
+    final url = 'http://13.125.226.133/onsil/board/${widget.postId}';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        post = jsonDecode(utf8.decode(response.bodyBytes));
+        helpCount = post?['helpCount'] ?? 0;
+      });
+    } else {
+      print('게시물 상세 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
 
   void _toggleHelp() {
     setState(() {
@@ -27,7 +55,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // 배경색을 흰색으로 설정
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -38,16 +66,14 @@ class _DetailPageState extends State<DetailPage> {
         title: Text('', style: TextStyle(color: Colors.black)),
         actions: [
           IconButton(
-            icon: Image.asset('assets/img/bell.png',),
+            icon: Image.asset('assets/img/bell.png'),
             onPressed: () {},
           ),
-          // IconButton(
-          //   icon: Icon(Icons.more_vert, color: Colors.black),
-          //   onPressed: () {},
-          // ),
         ],
       ),
-      body: Padding(
+      body: post == null
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,28 +82,28 @@ class _DetailPageState extends State<DetailPage> {
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 backgroundColor: Colors.blue,
-                child: Image.asset(
-                  'assets/img/man.png',
-                ),
+                child: Image.asset('assets/img/man.png'),
               ),
-              title: Text(widget.post['username']),
-              subtitle: Text('${widget.post['time'].difference(DateTime.now()).inMinutes.abs()}분 전'),
+              title: Text(post?['username'] ?? 'Unknown'),
+              subtitle: Text('${DateTime.parse(post?['date'] ?? DateTime.now().toString()).difference(DateTime.now()).inMinutes.abs()}분 전'),
             ),
             SizedBox(height: 8.0),
-            // Text(
-            //   '제목',
-            //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            // ),
+            Text(
+              post?['title'] ?? '제목 없음',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 8.0),
             Text(
-              widget.post['content'],
+              post?['content'] ?? '내용 없음',
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16.0),
-            Container(
-              height: 200,
-              color: Colors.grey[300],
-            ),
+            if (post?['image'] != null && post!['image'].isNotEmpty)
+              Image.network(
+                post!['image'],
+                height: 200,
+                fit: BoxFit.cover,
+              ),
             SizedBox(height: 16.0),
             Row(
               children: [
@@ -89,13 +115,13 @@ class _DetailPageState extends State<DetailPage> {
                         'assets/img/heart.png',
                         width: 20,
                         height: 20,
-                        color: widget.post['liked'] ? Colors.red : Colors.black,
+                        color: post?['liked'] ? Colors.red : Colors.black,
                       ),
                       onPressed: () {
                         // 좋아요 버튼 로직
                       },
                     ),
-                    Text('${widget.post['likes']}'),
+                    Text('${post?['likes']}'),
                   ],
                 ),
                 SizedBox(width: 8),
@@ -112,7 +138,7 @@ class _DetailPageState extends State<DetailPage> {
                         // 댓글 버튼 로직
                       },
                     ),
-                    Text('${widget.post['comments']}'),
+                    Text('${post?['comments']}'),
                   ],
                 ),
                 SizedBox(width: 8),
@@ -129,7 +155,7 @@ class _DetailPageState extends State<DetailPage> {
                         // 공유 버튼 로직
                       },
                     ),
-                    Text('${widget.post['shares']}'),
+                    Text('${post?['shares']}'),
                   ],
                 ),
               ],
@@ -141,17 +167,6 @@ class _DetailPageState extends State<DetailPage> {
                 '댓글 00',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: Image.asset(
-                  'assets/img/man.png',
-                ),
-              ),
-              title: Text(widget.post['username']),
-              subtitle: Text('${widget.post['time'].difference(DateTime.now()).inMinutes.abs()}분 전\n댓글 내용'),
             ),
             Divider(color: Colors.grey[300]),
             Row(

@@ -22,9 +22,9 @@ class _WritePostPageState extends State<WritePostPage> {
   final TextEditingController _contentController = TextEditingController();
   String? _selectedCategory;
   final Map<String, String> _categories = {
-    '산': 'SAN',
-    '질': 'JIL',
-    '친': 'CHIN',
+    '산책': 'SAN',
+    '질병': 'JIL',
+    '친목': 'CHIN',
   }; // 사용자에게 보이는 카테고리 이름과 실제 값 매핑
   String? _imageId; // 업로드된 이미지 ID
 
@@ -63,7 +63,7 @@ class _WritePostPageState extends State<WritePostPage> {
 
   Future<String?> _getToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token'); // 'auth_token'은 저장된 토큰의 키입니다
+    return prefs.getString('token'); // 'token'은 저장된 토큰의 키입니다
   }
 
   Future<void> _uploadImage() async {
@@ -137,33 +137,26 @@ class _WritePostPageState extends State<WritePostPage> {
     }
 
     try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://13.125.226.133/onsil/board/write'), // 실제 서버 URL
+      var response = await http.post(
+        Uri.parse('http://13.125.226.133/onsil/board/write'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'title': _titleController.text,
+          'content': _contentController.text,
+          'category': _selectedCategory,
+          'image': _imageId,
+        }),
       );
-
-      request.headers['Authorization'] = 'Bearer $token';
-
-      request.fields['title'] = _titleController.text;
-      request.fields['content'] = _contentController.text;
-
-      if (_selectedCategory == null || !_categories.containsValue(_selectedCategory!)) {
-        _showErrorDialog(context, '유효하지 않은 카테고리입니다.');
-        return;
-      }
-
-      request.fields['category'] = _selectedCategory!; // 실제 값으로 설정
-      request.fields['image'] = _imageId!; // 이미지 ID를 추가
-
-      var response = await request.send();
 
       if (response.statusCode == 200) {
         print('포스트 업로드 성공');
         _showInfoDialog(context, '포스트가 성공적으로 업로드되었습니다.');
       } else {
         print('포스트 업로드 실패: ${response.statusCode}');
-        final responseBody = await response.stream.bytesToString();
-        print('응답 본문: $responseBody');
+        print('응답 본문: ${response.body}');
         _showErrorDialog(context, '포스트 업로드 실패: ${response.statusCode}');
       }
     } catch (e) {
