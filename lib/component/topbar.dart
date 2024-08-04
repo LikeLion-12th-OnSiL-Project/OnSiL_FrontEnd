@@ -9,31 +9,38 @@ class Topbar extends StatelessWidget implements PreferredSizeWidget {
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.0),
-        height: 56.0, // Topbar의 전체 높이를 56으로 설정
-        color: Colors.white,
+        height: 56.0, // Set the total height of the top bar to 56
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.grey, // Set the border color to gray
+              width: 1.0, // Set the border width
+            ),
+          ),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
                 Image.asset(
-                  'assets/img/Vector.png', // Vector 이미지 경로 설정
-                  height: 40.0, // 높이를 40으로 설정
-                  width: 40.0, // 너비를 40으로 설정
+                  'assets/img/Vector.png', // Set the path to the Vector image
+                  height: 40.0, // Set the height to 40
+                  width: 40.0, // Set the width to 40
                 ),
-                //SizedBox(width: 4.0), // 이미지들 사이 간격을 더 가깝게 하기 위해 제거 또는 너비 축소
                 Image.asset(
-                  'assets/img/Union.png', // Union 이미지 경로 설정
-                  height: 40.0, // 높이를 40으로 설정
-                  width: 40.0, // 너비를 40으로 설정
+                  'assets/img/Union.png', // Set the path to the Union image
+                  height: 40.0, // Set the height to 40
+                  width: 40.0, // Set the width to 40
                 ),
               ],
             ),
             IconButton(
               onPressed: () {},
               icon: Container(
-                width: 40.0, // 너비를 40으로 설정
-                height: 40.0, // 높이를 40으로 설정
+                width: 40.0, // Set the width to 40
+                height: 40.0, // Set the height to 40
                 child: Image.asset(
                   'assets/img/bell.png',
                 ),

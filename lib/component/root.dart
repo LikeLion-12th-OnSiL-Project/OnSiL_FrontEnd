@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lion12/view/home.dart';
-import 'package:lion12/view/walk.dart';
-import 'package:lion12/view/community.dart';
-import 'package:lion12/view/diet.dart';
-import 'package:lion12/view/mypage.dart';
-import 'package:lion12/view/topbar.dart';
+import 'package:lion12/view/home/home.dart';
+import 'package:lion12/view/walk/walk.dart';
+import 'package:lion12/view/community/community.dart';
+import 'package:lion12/view/diet/diet.dart';
+import 'package:lion12/view/my/mypage.dart';
+import 'package:lion12/component/topbar.dart';
 
 
 class RootTab extends StatefulWidget {

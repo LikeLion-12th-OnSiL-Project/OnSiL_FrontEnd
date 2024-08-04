@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:lion12/view/walk.dart';
+import 'package:lion12/view/walk/walk.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -102,7 +102,9 @@ class _MapWidgetState extends State<MapWidget> {
       print('예외 발생: $e');
       return null;
     }
+
   }
+
 
   void _processRoute(Map<String, dynamic> data) {
     if (data['routes'].isEmpty) {
@@ -186,7 +188,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   Future<void> _sendDataToBackend() async {
-    final url = 'http://13.125.226.133/location'; // 백엔드 api
+    final url = 'http://13.125.226.133/location'; // 백엔드 API
 
     final title = _titleController.text;
     final content = _contentController.text;
@@ -196,13 +198,22 @@ class _MapWidgetState extends State<MapWidget> {
       return;
     }
 
+    // 시작 위치와 종료 위치의 좌표를 출력해 확인합니다.
+    print('Start Location: ${_startLocation?.latitude}, ${_startLocation?.longitude}');
+    print('End Location: ${_endLocation?.latitude}, ${_endLocation?.longitude}');
+
+    if (_startLocation == null || _endLocation == null) {
+      _showError('경로를 먼저 계산해야 합니다.');
+      return;
+    }
+
     final body = jsonEncode({
       'title': title,
       'content': content,
-      'start_latitude': _startLocation?.latitude ?? 0,
-      'start_longitude': _startLocation?.longitude ?? 0,
-      'end_latitude': _endLocation?.latitude ?? 0,
-      'end_longitude': _endLocation?.longitude ?? 0,
+      'start_latitude': _startLocation!.latitude,
+      'start_longitude': _startLocation!.longitude,
+      'end_latitude': _endLocation!.latitude,
+      'end_longitude': _endLocation!.longitude,
     });
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -213,11 +224,14 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     try {
-      final response = await http.post(Uri.parse(url), headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-          body: body);
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: body,
+      );
 
       if (response.statusCode == 200) {
         _showSuccess();

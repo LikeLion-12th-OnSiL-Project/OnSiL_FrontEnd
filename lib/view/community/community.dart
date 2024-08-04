@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lion12/view/post.dart';
+import 'package:lion12/view/community/post.dart';
 import 'detail.dart';
 
 class PostPage extends StatefulWidget {
