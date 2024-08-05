@@ -24,8 +24,8 @@ class _DetailPageState extends State<DetailPage> {
   void initState() {
     super.initState();
     fetchUserNickname(); // 사용자 닉네임 가져오기
-    fetchPostDetail();
-    fetchComments();
+    fetchPostDetail(); // 게시물 상세 정보 가져오기
+    fetchComments(); // 댓글 가져오기
   }
 
   Future<void> fetchUserNickname() async {
@@ -37,7 +37,7 @@ class _DetailPageState extends State<DetailPage> {
       return;
     }
 
-    final url = 'http://13.125.226.133/user/me'; // 사용자 정보 가져오는 API 엔드포인트
+    final url = 'http://13.125.226.133/api/mypage'; // 사용자 정보 가져오는 API 엔드포인트
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -57,6 +57,9 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Future<void> fetchPostDetail() async {
+    // 전달받은 postId 값 확인
+    print('전달받은 postId: ${widget.postId}');
+
     final url = 'http://13.125.226.133/onsil/board/search/${widget.postId}';
     final response = await http.get(
       Uri.parse(url),
@@ -70,13 +73,14 @@ class _DetailPageState extends State<DetailPage> {
         post = jsonDecode(utf8.decode(response.bodyBytes));
         helpCount = post?['recommend'] ?? 0;
       });
+      print('게시물 상세 정보를 불러오는 데 성공했습니다.');
     } else {
       print('게시물 상세 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
     }
   }
 
   Future<void> fetchComments() async {
-    final url = 'http://13.125.226.133/board-reply/${widget.postId}';
+    final url = 'http://13.125.226.133/board-reply';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -86,16 +90,22 @@ class _DetailPageState extends State<DetailPage> {
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-      print('서버 응답: $responseData'); // 응답 데이터 로깅
+      print('서버 응답: $responseData'); // 전체 응답 데이터 로그 출력
 
       setState(() {
-        comments.clear(); // 댓글 리스트를 초기화하여 다른 게시물의 댓글이 남아 있지 않도록 합니다.
-        if (responseData is Map<String, dynamic>) {
-          comments.add(responseData);
-        } else if (responseData is List) {
-          comments = List<Map<String, dynamic>>.from(responseData);
+        comments.clear(); // 댓글 리스트 초기화
+        if (responseData is List) {
+          // 특정 boardId로 필터링
+          comments = List<Map<String, dynamic>>.from(responseData)
+              .where((comment) => comment['boardId'] == widget.postId)
+              .toList();
+
+          // 각 댓글의 writer 필드를 로그로 출력하여 확인
+          comments.forEach((comment) {
+            print('writer: ${comment['writer']}');
+          });
         } else {
-          comments = []; // 기본적으로 빈 리스트
+          comments = [];
           print('알 수 없는 응답 구조입니다.');
         }
       });
@@ -104,7 +114,15 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+
   Future<void> _postComment() async {
+    if (_commentController.text
+        .trim()
+        .isEmpty) {
+      print('댓글 내용이 비어 있습니다.');
+      return;
+    }
+
     if (nickname == null) {
       print('닉네임을 가져올 수 없습니다.');
       return;
@@ -119,6 +137,11 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     final url = 'http://13.125.226.133/board-reply/${widget.postId}';
+
+    // 디버그용 print 문 추가
+    print('댓글 작성 함수 호출됨');
+    print('댓글 작성 시 사용되는 postId: ${widget.postId}');
+
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -128,19 +151,13 @@ class _DetailPageState extends State<DetailPage> {
       body: jsonEncode({
         'writer': nickname, // 닉네임을 writer로 사용
         'content': _commentController.text,
-        'boardId': widget.postId,
+        'boardId': widget.postId, // 올바른 게시물 ID 사용
       }),
     );
 
     if (response.statusCode == 200) {
-      setState(() {
-        comments.add({
-          'writer': nickname, // 서버 응답 대신 클라이언트에서 바로 닉네임을 사용
-          'content': _commentController.text,
-          'boardId': widget.postId,
-        });
-        _commentController.clear(); // 댓글 입력 후 텍스트필드 초기화
-      });
+      _commentController.clear(); // 댓글 입력 후 텍스트필드 초기화
+      await fetchComments(); // 댓글 다시 불러오기
       print('댓글이 성공적으로 등록되었습니다.');
     } else {
       print('댓글 등록에 실패했습니다: ${response.statusCode}');
@@ -180,104 +197,129 @@ class _DetailPageState extends State<DetailPage> {
       ),
       body: post == null
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: Image.asset('assets/img/man.png'),
-                ),
-                title: Text(post?['writerNickname'] ?? 'Unknown'),
-                subtitle: Text('카테고리: ${post?['category'] ?? 'Unknown'}'),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                post?['title'] ?? '제목 없음',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                post?['content'] ?? '내용 없음',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 16.0),
-              if (post?['image'] != null && post!['image'].isNotEmpty)
-                Image.network(
-                  post!['image'],
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: _toggleHelp,
-                    child: Row(
+          : Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 60.0), // 댓글 입력창을 위한 여백
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        child: Image.asset('assets/img/man.png'),
+                      ),
+                      title: Text(post?['writerNickname'] ?? 'Unknown'),
+                      subtitle: Text('카테고리: ${post?['category'] ?? 'Unknown'}'),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      post?['title'] ?? '제목 없음',
+                      style: TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      post?['content'] ?? '내용 없음',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 16.0),
+                    if (post?['image'] != null && post!['image'].isNotEmpty)
+                      Image.network(
+                        post!['image'],
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    SizedBox(height: 16.0),
+                    Row(
                       children: [
-                        Icon(
-                          isHelped ? Icons.favorite : Icons.favorite_border,
-                          size: 20,
-                          color: isHelped ? Colors.red : null,
+                        GestureDetector(
+                          onTap: _toggleHelp,
+                          child: Row(
+                            children: [
+                              Icon(
+                                isHelped ? Icons.favorite : Icons
+                                    .favorite_border,
+                                size: 20,
+                                color: isHelped ? Colors.red : null,
+                              ),
+                              SizedBox(width: 4),
+                              Text('도움 돼요 $helpCount',
+                                  style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 4),
-                        Text('도움 돼요 $helpCount', style: TextStyle(fontSize: 14)),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              Divider(color: Colors.grey[300]),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  '댓글 ${comments.length}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    Divider(color: Colors.grey),
+                    SizedBox(height: 8.0),
+                    Text('댓글', style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 8.0),
+                    ListView.builder(
+                      physics: NeverScrollableScrollPhysics(), // 내장 스크롤 비활성화
+                      shrinkWrap: true,
+                      itemCount: comments.length,
+                      itemBuilder: (context, index) {
+                        final comment = comments[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                child: Image.asset('assets/img/man.png'),
+                              ),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(comment['writer'] ?? 'Unknown',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 4.0),
+                                    Text(comment['content'] ?? ''),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.more_vert, size: 20),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-              Divider(color: Colors.grey[300]),
-              ...comments.map((comment) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              comment['writer'] ?? 'Unknown',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(comment['content'] ?? ''),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.more_vert, size: 20),
-                    ],
-                  ),
-                );
-              }).toList(),
-              SizedBox(height: 16.0),
-              TextField(
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              color: Colors.white,
+              child: TextField(
                 controller: _commentController,
                 decoration: InputDecoration(
                   hintText: '댓글을 입력해주세요.',
                   border: OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(Icons.send),
-                    onPressed: _postComment,
+                    onPressed: _postComment, // 댓글 작성 함수 호출
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

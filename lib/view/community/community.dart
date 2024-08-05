@@ -15,12 +15,44 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Map<String, dynamic>> posts = [];
+  String? nickname;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    fetchPosts();
+    fetchNicknameAndPosts();
+  }
+
+  Future<void> fetchNicknameAndPosts() async {
+    await fetchNickname();
+    await fetchPosts();
+  }
+
+  Future<void> fetchNickname() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      print('토큰을 찾을 수 없습니다.');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://13.125.226.133/api/mypage'), // 사용자 정보 가져오는 API 엔드포인트
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        nickname = data['nickname']; // 닉네임 설정
+      });
+    } else {
+      print('사용자 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
   }
 
   Future<void> fetchPosts() async {
@@ -288,3 +320,4 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     );
   }
 }
+//community.dart 코드

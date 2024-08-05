@@ -14,6 +14,7 @@ class Mypage extends StatefulWidget {
 class _MypageState extends State<Mypage> {
   String? nickname;
   String? profilePicUrl;
+  List<String> healthConditions = []; // 건강 상태를 저장할 리스트
   double _sliderValue = 1; // 슬라이더 기본 값, 1은 기본 크기를 의미합니다.
   int myCourseCount = 0; // 내가 작성한 산책코스 개수를 저장할 변수
 
@@ -50,6 +51,7 @@ class _MypageState extends State<Mypage> {
         setState(() {
           nickname = data['nickname'];
           profilePicUrl = data['profile_pic'];
+          healthConditions = (data['health_con'] ?? '').split(','); // 건강 상태 가져오기
         });
       } else {
         print('회원 정보 로드 실패. 오류 코드: ${response.statusCode}');
@@ -158,19 +160,18 @@ class _MypageState extends State<Mypage> {
     double healthTextSize = _getTextSize(); // 건강 상태 텍스트 크기 조정
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildHealthButton('당뇨'),
-            _buildHealthButton('고혈압'),
-            _buildHealthButton('관절염'),
-          ],
+        Center(
+          child: Wrap(
+            spacing: 6.0,
+            runSpacing: -8.0,
+            alignment: WrapAlignment.center,
+            children: healthConditions.map((condition) => _buildChip(condition)).toList(),
+          ),
         ),
         SizedBox(height: 10),
-        Align(
-          alignment: Alignment.center,
+        Center(
           child: Text(
             '${nickname ?? '안서동 산책러'}님의 건강상태는\n‘꾸준한 관리 필요’ 상태입니다. 😌\n규칙적인 식사와 가벼운 걷기를 추천드려요.',
             style: TextStyle(fontSize: healthTextSize), // 동적으로 변경되는 건강 상태 텍스트 크기
@@ -178,21 +179,6 @@ class _MypageState extends State<Mypage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildHealthButton(String label) {
-    return TextButton(
-      onPressed: () {
-        // 버튼 클릭 시 동작
-      },
-      child: Text(label, style: TextStyle(color: Colors.blue)),
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.grey[200],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
     );
   }
 
