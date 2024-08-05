@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:lion12/view/my/mycourses/my_courses_screen.dart'; // 새로 만든 스크린 파일을 임포트
 
 class Mypage extends StatefulWidget {
   const Mypage({super.key});
@@ -14,11 +15,13 @@ class _MypageState extends State<Mypage> {
   String? nickname;
   String? profilePicUrl;
   double _sliderValue = 1; // 슬라이더 기본 값, 1은 기본 크기를 의미합니다.
+  int myCourseCount = 0; // 내가 작성한 산책코스 개수를 저장할 변수
 
   @override
   void initState() {
     super.initState();
     _fetchMemberInfo();
+    _fetchMyCoursesCount();
   }
 
   Future<void> _fetchMemberInfo() async {
@@ -53,6 +56,32 @@ class _MypageState extends State<Mypage> {
       }
     } catch (e) {
       print('회원 정보 로드 중 오류 발생: $e');
+    }
+  }
+
+  Future<void> _fetchMyCoursesCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      print('토큰을 찾을 수 없습니다.');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://13.125.226.133/location/my-locations'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> courses = jsonDecode(utf8.decode(response.bodyBytes));
+      setState(() {
+        myCourseCount = courses.length;
+      });
+    } else {
+      print('내가 작성한 산책코스 로드 실패. 오류 코드: ${response.statusCode}');
     }
   }
 
@@ -143,7 +172,7 @@ class _MypageState extends State<Mypage> {
         Align(
           alignment: Alignment.center,
           child: Text(
-            '안서동 산책러님의 건강상태는\n‘꾸준한 관리 필요’ 상태입니다. 😌\n규칙적인 식사와 가벼운 걷기를 추천드려요.',
+            '${nickname ?? '안서동 산책러'}님의 건강상태는\n‘꾸준한 관리 필요’ 상태입니다. 😌\n규칙적인 식사와 가벼운 걷기를 추천드려요.',
             style: TextStyle(fontSize: healthTextSize), // 동적으로 변경되는 건강 상태 텍스트 크기
             textAlign: TextAlign.center,
           ),
@@ -205,7 +234,7 @@ class _MypageState extends State<Mypage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildActivityRow(Icons.edit, '내가 작성한 산책코스', 0),
+        _buildActivityRow(Icons.edit, '내가 작성한 산책코스', myCourseCount),
         _buildActivityRow(Icons.edit, '내가 작성한 게시물', 0),
         _buildActivityRow(Icons.favorite, '내가 좋아한 산책코스', 0),
         _buildActivityRow(Icons.favorite, '내가 좋아한 게시물', 0),
@@ -216,12 +245,23 @@ class _MypageState extends State<Mypage> {
   Widget _buildActivityRow(IconData icon, String label, int count) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 20 * (_sliderValue + 0.5), color: Colors.grey),
-          SizedBox(width: 10),
-          Text('$label $count', style: TextStyle(fontSize: _getTextSize())),
-        ],
+      child: GestureDetector(
+        onTap: () {
+          if (label.contains("내가 작성한 산책코스")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MyCoursesScreen()),
+            );
+          }
+          // 다른 항목에 대한 클릭 이벤트도 필요하다면 여기에 추가
+        },
+        child: Row(
+          children: [
+            Icon(icon, size: 20 * (_sliderValue + 0.5), color: Colors.grey),
+            SizedBox(width: 10),
+            Text('$label $count', style: TextStyle(fontSize: _getTextSize())),
+          ],
+        ),
       ),
     );
   }

@@ -22,6 +22,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _emailVerificationCodeController = TextEditingController();
+  final TextEditingController _healthConController = TextEditingController();
   File? _image;
   bool _isEmailVerified = false;
   bool _isVerificationRequested = false;
@@ -187,12 +188,14 @@ class _SignupScreenState extends State<SignupScreen> {
     String name = _nameController.text;
     String nickname = _nicknameController.text;
     String email = _emailController.text;
+    String healthCon = _healthConController.text;
 
     if (memberId.isEmpty ||
         password.isEmpty ||
         name.isEmpty ||
         nickname.isEmpty ||
-        email.isEmpty) {
+        email.isEmpty ||
+        healthCon.isEmpty) {
       _showErrorDialog('모든 필드를 입력해주세요.');
       return;
     }
@@ -217,6 +220,7 @@ class _SignupScreenState extends State<SignupScreen> {
         "nickname": nickname,
         "profile_pic": profilePicUrl,
         "email": email,
+        "health_con": healthCon,
       });
 
       final response = await http.post(
@@ -395,6 +399,22 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _emailVerificationCodeController,
                 decoration: InputDecoration(
                   hintText: '인증 코드',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _healthConController,
+                decoration: InputDecoration(
+                  hintText: '건강 상태',
                   hintStyle: TextStyle(color: Colors.grey),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(12.0)),

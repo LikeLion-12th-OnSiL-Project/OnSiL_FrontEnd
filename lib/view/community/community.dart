@@ -23,9 +23,6 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     fetchPosts();
   }
 
-
-
-
   Future<void> fetchPosts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -43,9 +40,6 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
       },
     );
 
-
-
-
     if (response.statusCode == 200) {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       print('API 응답 데이터: $data');
@@ -53,8 +47,8 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
         posts = (data['content'] as List).map((post) {
           print('게시글 데이터: $post');
           return {
-            'id': post['id'] ?? 0,
-            'username': post['writer'] ?? 'Unknown',
+            'postId': post['postId'] ?? 0, // postId로 변경
+            'username': post['writerNickname'] ?? 'Unknown', // writerNickname으로 변경
             'likes': post['recommend'] ?? 0,
             'title': post['title'] ?? 'No Title',
             'image': post['image'] ?? '',
@@ -70,7 +64,6 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     }
   }
 
-  // 원하는 카테고리로 변환하는 함수
   String _getFormattedCategory(String category) {
     switch (category) {
       case 'SAN':
@@ -85,10 +78,10 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
   }
 
   Future<void> _toggleLike(int index) async {
-    final boardId = posts[index]['id'] + 1;
+    final postId = posts[index]['postId']; // postId 사용
     final url = posts[index]['liked']
-        ? 'http://13.125.226.133/onsil/board/recommend/down/$boardId'
-        : 'http://13.125.226.133/onsil/board/recommend/up/$boardId';
+        ? 'http://13.125.226.133/onsil/board/recommend/down/$postId'
+        : 'http://13.125.226.133/onsil/board/recommend/up/$postId';
 
     print('호출할 URL: $url');
 
@@ -204,7 +197,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DetailPage(postId: posts[index]['id']), // post 대신 postId만 전달
+                builder: (context) => DetailPage(postId: posts[index]['postId']), // postId 사용
               ),
             );
           },
