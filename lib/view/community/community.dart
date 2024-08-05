@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:lion12/view/post.dart';
+import 'package:lion12/view/community/post.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'detail.dart'; // detail.dart 파일이 필요합니다
+import 'detail.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -22,30 +23,44 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     fetchPosts();
   }
 
+
+
+
   Future<void> fetchPosts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      print('토큰을 찾을 수 없습니다.');
+      return;
+    }
+
     const url = 'http://13.125.226.133/onsil/board/list'; // 실제 API URL로 변경 필요
     final response = await http.get(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
       },
     );
 
+
+
+
     if (response.statusCode == 200) {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
-      print('API 응답 데이터: $data'); // 응답 데이터 출력
+      print('API 응답 데이터: $data');
       setState(() {
         posts = (data['content'] as List).map((post) {
-          print('게시글 데이터: $post'); // 각 게시글 데이터 출력
+          print('게시글 데이터: $post');
           return {
-            'id': post['id'] ?? 0, // 게시글 ID가 null일 경우 0으로 설정
-            'username': post['writer'] ?? 'Unknown', // 작성자 정보가 null일 경우 'Unknown'으로 설정
-            'likes': post['recommend'] ?? 0, // 추천수가 null일 경우 0으로 설정
-            'title': post['title'] ?? 'No Title', // 제목이 null일 경우 'No Title'으로 설정
-            'image': post['image'] ?? '', // 사진 필드가 null일 경우 빈 문자열로 설정
-            'category': _getFormattedCategory(post['category'] ?? ''), // 카테고리가 null일 경우 빈 문자열로 설정
-            'liked': false,
-            'date': post['date'] ?? '', // 날짜가 null일 경우 빈 문자열로 설정
+            'id': post['id'] ?? 0,
+            'username': post['writer'] ?? 'Unknown',
+            'likes': post['recommend'] ?? 0,
+            'title': post['title'] ?? 'No Title',
+            'image': post['image'] ?? '',
+            'category': _getFormattedCategory(post['category'] ?? ''),
+            'liked': post['liked'] ?? false,
+            'date': post['date'] ?? '',
           };
         }).toList();
       });
@@ -55,8 +70,7 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     }
   }
 
-
-// 원하는 카테고리로 변환하는 함수
+  // 원하는 카테고리로 변환하는 함수
   String _getFormattedCategory(String category) {
     switch (category) {
       case 'SAN':
@@ -65,26 +79,19 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
         return '질병';
       case 'CHIN':
         return '친목';
-    // 더 많은 카테고리를 추가할 수 있습니다.
       default:
-        return category; // 기본적으로 원래의 카테고리 값을 반환
+        return category;
     }
   }
 
-
   Future<void> _toggleLike(int index) async {
-    final boardId = posts[index]['id'];
+    final boardId = posts[index]['id'] + 1;
+    final url = posts[index]['liked']
+        ? 'http://13.125.226.133/onsil/board/recommend/down/$boardId'
+        : 'http://13.125.226.133/onsil/board/recommend/up/$boardId';
 
-    // ID 값 검증
-    if (boardId == null) {
-      print('게시글 ID가 null입니다.');
-      return;
-    }
+    print('호출할 URL: $url');
 
-    final url = 'http://13.125.226.133/onsil/board/recommend/up/$boardId';
-    print('호출할 URL: $url'); // URL 출력
-
-    // 좋아요 상태 업데이트
     setState(() {
       posts[index]['liked'] = !posts[index]['liked'];
       if (posts[index]['liked']) {
@@ -103,11 +110,11 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
       );
 
       if (response.statusCode == 200) {
-        // 성공적으로 업데이트됨
+        print('좋아요 상태가 성공적으로 업데이트되었습니다.');
       } else {
         print('좋아요 상태 업데이트 실패: ${response.statusCode}');
         print('응답 본문: ${response.body}');
-        // 상태를 원래대로 복원
+
         setState(() {
           posts[index]['liked'] = !posts[index]['liked'];
           if (posts[index]['liked']) {
@@ -116,11 +123,11 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
             posts[index]['likes'] -= 1;
           }
         });
-        throw Exception('좋아요 상태 업데이트 실패');
+        throw Exception('좋아요 상태 업데이트 실패: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('오류: $e');
-      // 상태를 원래대로 복원
+      print('오류 발생: $e');
+
       setState(() {
         posts[index]['liked'] = !posts[index]['liked'];
         if (posts[index]['liked']) {
@@ -135,12 +142,10 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
   List<Map<String, dynamic>> getSortedPosts(String type) {
     if (type == 'latest') {
       List<Map<String, dynamic>> sortedPosts = List.from(posts);
-      // 날짜 기준 내림차순 정렬
       sortedPosts.sort((a, b) => b['date'].compareTo(a['date']));
       return sortedPosts;
     } else if (type == 'popular') {
       List<Map<String, dynamic>> sortedPosts = List.from(posts);
-      // 좋아요 수 기준 내림차순 정렬
       sortedPosts.sort((a, b) => (b['likes'] ?? 0).compareTo(a['likes'] ?? 0));
       return sortedPosts;
     }

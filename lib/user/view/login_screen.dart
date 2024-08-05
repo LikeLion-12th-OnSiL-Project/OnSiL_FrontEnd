@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:lion12/view/community.dart';
-import 'package:lion12/view/home.dart';
+import 'package:lion12/view/community/community.dart';
+import 'package:lion12/view/home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:lion12/component/text_field.dart';
 import 'package:lion12/user/view/signup.dart';
 import 'dart:async';
 
-import '../../view/root.dart';
+import '../../component/root.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
