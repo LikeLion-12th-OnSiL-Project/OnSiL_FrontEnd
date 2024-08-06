@@ -528,7 +528,6 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   Map<String, dynamic>? userData;
-  final String username = "민석";
   int helpCount = 0;
   bool isHelped = false;
   List<Map<String, dynamic>> comments = [];
@@ -540,39 +539,6 @@ class _DetailPageState extends State<DetailPage> {
     fetchComments();
     fetchUserData();
     print(widget.post["id"]);
-  }
-
-  void _showCommentInputModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true, // Ensure modal expands to fit keyboard
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: commentController,
-                decoration: inputDecoration.copyWith(
-                  hintText: '댓글을 입력해주세요.',
-                ),
-                keyboardType: TextInputType.text,
-                autofocus: true,
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  submitComment();
-                  Navigator.pop(context); // Close the modal
-                },
-                child: Text('댓글 작성'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
 
@@ -590,12 +556,13 @@ class _DetailPageState extends State<DetailPage> {
   Future<void> fetchUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    print(token);
     if (token == null) {
       print('토큰을 찾을 수 없습니다.');
       return;
     }
     final response = await http.get(
-      Uri.parse('https://example.com/user'),
+      Uri.parse('http://13.125.226.133/api/mypage'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -619,7 +586,7 @@ class _DetailPageState extends State<DetailPage> {
       return;
     }
     final response = await http.get(
-      Uri.parse('http://13.125.226.133/location-reply?locationId=8'),
+      Uri.parse('http://13.125.226.133/location-reply?locationId=1'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -645,29 +612,29 @@ class _DetailPageState extends State<DetailPage> {
     if (commentController.text.isEmpty) return;
 
     final response = await http.post(
-      Uri.parse('http://13.125.226.133/location-reply/8'),
+      Uri.parse('http://13.125.226.133/location-reply/1'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode(<String, dynamic>{
-        'writer': username, // Replace with actual writer name
+        'writer': userData?["name"], // Replace with actual writer name
         'content': commentController.text,
-        'locationId': 8,
+        'locationId': 1,
       }),
     );
     print(jsonEncode(<String, dynamic>{
-      'writer': username, // Replace with actual writer name
+      'writer': userData?["name"], // Replace with actual writer name
       'content': commentController.text,
-      'locationId': 8,
+      'locationId': 1,
     }));
 
     if (response.statusCode == 200) {
       setState(() {
         comments.add({
-          'writer': username, // Replace with actual writer name
+          'writer': userData?["name"], // Replace with actual writer name
           'content': commentController.text,
-          'locationId': 8//widget.post['id'],
+          'locationId': 1//widget.post['id'],
         });
         commentController.clear();
       });
